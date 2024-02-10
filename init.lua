@@ -69,6 +69,12 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
+  -- Same window navigation as Tmux
+  -- See https://github.com/christoomey/vim-tmux-navigator
+  {
+    "christoomey/vim-tmux-navigator",
+  },
+
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
@@ -201,16 +207,25 @@ require('lazy').setup({
   },
 
   {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
+    "EdenEast/nightfox.nvim",
     priority = 1000,
     lazy = false,
-    config = function()
-      require('onedark').setup {
-        -- Set a style preset. 'dark' is default.
-        style = 'dark', -- dark, darker, cool, deep, warm, warmer, light
-      }
-      require('onedark').load()
+    opts = {
+      options = {
+        dim_inactive = true,
+        inverse = {
+          match_paren = true,
+        },
+      },
+      groups = {
+        all = {
+          CursorLine = { bg = "bg0" },
+        },
+      },
+    },
+    init = function()
+      vim.opt.cursorline = true
+      vim.cmd.colorscheme "nordfox"
     end,
   },
 
@@ -439,10 +454,10 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
+    ensure_installed = { 'c', 'cpp', 'java', 'lua', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash', 'fish' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-    auto_install = false,
+    auto_install = true,
     -- Install languages synchronously (only applied to `ensure_installed`)
     sync_install = false,
     -- List of parsers to ignore installing
@@ -455,9 +470,9 @@ vim.defer_fn(function()
       enable = true,
       keymaps = {
         init_selection = '<c-space>',
-        node_incremental = '<c-space>',
+        node_incremental = 'v',
         scope_incremental = '<c-s>',
-        node_decremental = '<M-space>',
+        node_decremental = 'V',
       },
     },
     textobjects = {
@@ -586,12 +601,13 @@ require('mason-lspconfig').setup()
 --  If you want to override the default filetypes that your language server will attach to you can
 --  define the property 'filetypes' to the map in question.
 local servers = {
-  -- clangd = {},
+  clangd = {},
   -- gopls = {},
   -- pyright = {},
-  -- rust_analyzer = {},
+  rust_analyzer = {},
   -- tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
+  jdtls = {},
 
   lua_ls = {
     Lua = {
